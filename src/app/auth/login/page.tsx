@@ -1,17 +1,17 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 const page = () => {
   return (
-    <div className="flex flex-col gap-6" >
+    <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form className="p-6 md:p-8">
@@ -46,8 +46,7 @@ const page = () => {
               <Field>
                 <Button type="submit">Login</Button>
               </Field>
-           
-         
+
               <FieldDescription className="text-center">
                 Don&apos;t have an account? <a href="#">Sign up</a>
               </FieldDescription>
@@ -67,7 +66,7 @@ const page = () => {
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;
