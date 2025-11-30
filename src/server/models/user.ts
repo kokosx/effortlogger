@@ -1,14 +1,11 @@
-import { _db } from "../db";
+import type { Database } from "../db";
 import { user } from "../db/schema";
 import type { createUserSchema } from "../validation/user";
-import type { Transaction } from "./models";
 
 const createUser = async (
-  data: typeof createUserSchema._output,
-  tx?: Transaction
+  db: Database,
+  data: typeof createUserSchema._output
 ) => {
-  const db = tx ?? _db;
-
   const resUser = await db.insert(user).values(data).returning();
   return resUser.at(0)!;
 };

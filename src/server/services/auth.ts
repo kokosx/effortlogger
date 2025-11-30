@@ -1,3 +1,4 @@
+import type { Database } from "../db";
 import { models } from "../models/models";
 import type { createUserSchema } from "../validation/user";
 import bcrypt from "bcrypt";
@@ -9,25 +10,28 @@ const normalizeEmail = (email: string) => {
   return email.toLowerCase().trim();
 };
 
-const createUser = async (data: typeof createUserSchema._output) => {
+const createUser = async (
+  db: Database,
+  data: typeof createUserSchema._output
+) => {
   //Hash password
   const hashedPassword = await bcrypt.hash(data.password, 10);
   //Add user to db
-  const user = await models.user.createUser({
+  const user = await models.user.createUser(db, {
     email: normalizeEmail(data.email),
     name: data.name,
     password: hashedPassword,
   });
   //Create session
-  await createSession(user.id);
+  await createSession(db, user.id);
 };
 
 const loginUser = () => {
   //TBD
 };
 
-const createSession = async (userId: number) => {
-  const session = await models.session.createSession({
+const createSession = async (db: Database, userId: number) => {
+  const session = await models.session.createSession(db, {
     userId,
   });
   const cookieStore = await cookies();
