@@ -1,7 +1,7 @@
-import type { Database } from "../db";
+import type { DatabaseConnection } from "../db";
 import { models } from "../models/models";
-import type { createUserSchema } from "../validation/user";
-import bcrypt from "bcrypt";
+import type { createUserSchema, loginUserSchema } from "../validation/user";
+import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
 export const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7;
@@ -11,7 +11,7 @@ const normalizeEmail = (email: string) => {
 };
 
 const createUser = async (
-  db: Database,
+  db: DatabaseConnection,
   data: typeof createUserSchema._output
 ) => {
   //Hash password
@@ -26,11 +26,25 @@ const createUser = async (
   await createSession(db, user.id);
 };
 
-const loginUser = () => {
-  //TBD
+const loginUser = async (
+  db: DatabaseConnection,
+  data: typeof loginUserSchema._output
+) => {
+  const normalizedEmail = normalizeEmail(data.email);
+  const user = await models.user.findUserByEmail(db, normalizedEmail);
+  if (!user) {
+    throw new Error("User not found");
+    //TODO:
+  }
+  const isPasswordValid = await bcrypt.compare(data.password, user.password);
+  if (!isPasswordValid) {
+    throw new Error("Invalid password");
+    //TODO:
+  }
+  await createSession(db, user.id);
 };
 
-const createSession = async (db: Database, userId: number) => {
+const createSession = async (db: DatabaseConnection, userId: number) => {
   const session = await models.session.createSession(db, {
     userId,
   });

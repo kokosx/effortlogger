@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import type { Database } from "../db";
 import { user } from "../db/schema";
 import type { createUserSchema } from "../validation/user";
@@ -10,8 +11,14 @@ const createUser = async (
   return resUser.at(0)!;
 };
 
+const findUserByEmail = async (db: Database, email: string) => {
+  const resUser = await db.select().from(user).where(eq(user.email, email));
+  return resUser.at(0);
+};
+
 const model = {
   createUser,
+  findUserByEmail,
 };
 
 export default model;
