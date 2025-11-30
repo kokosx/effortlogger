@@ -15,7 +15,7 @@ export const createTable = pgTableCreator((name) => `effortlogger_${name}`);
 export const user = createTable("user", (d) => ({
   id: d.integer("id").primaryKey().generatedByDefaultAsIdentity(),
   name: d.varchar("name", { length: 256 }),
-  email: d.varchar("email", { length: 256 }).notNull(),
+  email: d.varchar("email", { length: 256 }).unique().notNull(),
   password: d.text("password").notNull(),
   createdAt: d
     .timestamp("created_at", { withTimezone: true })

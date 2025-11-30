@@ -5,12 +5,17 @@ import { cookies } from "next/headers";
 
 export const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7;
 
+const normalizeEmail = (email: string) => {
+  return email.toLowerCase().trim();
+};
+
 const createUser = async (data: typeof createUserSchema._output) => {
   //Hash password
   const hashedPassword = await bcrypt.hash(data.password, 10);
   //Add user to db
   const user = await models.user.createUser({
-    ...data,
+    email: normalizeEmail(data.email),
+    name: data.name,
     password: hashedPassword,
   });
   //Create session
