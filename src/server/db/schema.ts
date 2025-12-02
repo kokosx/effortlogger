@@ -2,7 +2,8 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { index, pgTableCreator, uuid } from "drizzle-orm/pg-core";
-import { SESSION_MAX_AGE_MS } from "../services/auth";
+
+const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7;
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same

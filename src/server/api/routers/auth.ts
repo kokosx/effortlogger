@@ -13,4 +13,8 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       await services.auth.loginUser(ctx.db, input);
     }),
+  getUser: publicProcedure.query(async ({ ctx }) => {
+    const user = await services.auth.getUser(ctx.db);
+    return user;
+  }),
 });

@@ -11,6 +11,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { _db } from "@/server/db";
+import services from "../services/services";
 
 /**
  * 1. CONTEXT
@@ -94,6 +95,18 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
 
   return result;
+});
+
+const isAuthenticatedMiddleware = t.middleware(async ({ next, path, ctx }) => {
+  const user = services.auth.getUser(ctx.db);
+  if (!user) {
+    throw new Error("Not authenticated");
+  }
+  return next({
+    ctx: {
+      user,
+    },
+  });
 });
 
 /**

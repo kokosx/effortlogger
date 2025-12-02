@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns } from "drizzle-orm";
 import type { Database } from "../db";
-import { user } from "../db/schema";
+import { session, user } from "../db/schema";
 import type { createUserSchema } from "../validation/user";
 
 const createUser = async (
@@ -16,9 +16,19 @@ const findUserByEmail = async (db: Database, email: string) => {
   return resUser.at(0);
 };
 
+const findUserBySessionId = async (db: Database, sessionId: string) => {
+  const resUser = await db
+    .select(getTableColumns(user))
+    .from(user)
+    .innerJoin(session, eq(session.userId, user.id))
+    .where(eq(session.id, sessionId));
+  return resUser.at(0);
+};
+
 const model = {
   createUser,
   findUserByEmail,
+  findUserBySessionId,
 };
 
 export default model;

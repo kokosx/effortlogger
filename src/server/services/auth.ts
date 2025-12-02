@@ -60,8 +60,40 @@ const createSession = async (db: DatabaseConnection, userId: number) => {
   });
 };
 
+const validateSession = async (db: DatabaseConnection) => {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("session_id");
+  if (!sessionId) {
+    return null;
+  }
+  const session = await models.session.getSessionBySessionId(
+    db,
+    sessionId.value
+  );
+  if (!session) {
+    return null;
+  }
+  if (session.expiresAt.getTime() < Date.now()) {
+    return null;
+  }
+  return session;
+};
+
+const getUser = async (db: DatabaseConnection) => {
+  //Check if the session is valid
+  const session = await validateSession(db);
+  if (!session) {
+    return null;
+  }
+  //Get the user
+  const user = models.user.findUserBySessionId(db, session.id);
+  return user;
+};
+
 const auth = {
   createUser,
+  validateSession,
+  getUser,
   loginUser,
 };
 
