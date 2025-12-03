@@ -1,6 +1,11 @@
+import { redirect } from "next/navigation";
 import services from "../../services/services";
 import { createUserSchema, loginUserSchema } from "../../validation/user";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import {
+  authenticatedProcedure,
+  createTRPCRouter,
+  publicProcedure,
+} from "../trpc";
 
 export const authRouter = createTRPCRouter({
   createUser: publicProcedure
@@ -13,8 +18,12 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       await services.auth.loginUser(ctx.db, input);
     }),
-  getUser: publicProcedure.query(async ({ ctx }) => {
+  getUser: authenticatedProcedure.query(async ({ ctx }) => {
     const user = await services.auth.getUser(ctx.db);
     return user;
+  }),
+  signOut: authenticatedProcedure.mutation(async ({ ctx }) => {
+    await services.auth.signOut(ctx.db);
+    redirect("/");
   }),
 });

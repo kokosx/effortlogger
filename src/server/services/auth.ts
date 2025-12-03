@@ -90,11 +90,23 @@ const getUser = async (db: DatabaseConnection) => {
   return user;
 };
 
+const signOut = async (db: DatabaseConnection) => {
+  const session = await validateSession(db);
+  if (!session) {
+    return false;
+  }
+  const cookieStore = await cookies();
+  cookieStore.delete("session_id");
+  await models.session.deleteSessionById(db, session.id);
+  return true;
+};
+
 const auth = {
   createUser,
   validateSession,
   getUser,
   loginUser,
+  signOut,
 };
 
 export default auth;

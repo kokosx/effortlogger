@@ -19,9 +19,15 @@ const getSessionBySessionId = async (db: Database, sessionId: string) => {
   return sessionRes.at(0);
 };
 
+const deleteSessionById = async (db: Database, sessionId: string) => {
+  //TODO: Error handling
+  await db.delete(session).where(eq(session.id, sessionId));
+};
+
 const model = {
   createSession,
   getSessionBySessionId,
+  deleteSessionById,
 };
 
 export default model;

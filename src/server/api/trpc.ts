@@ -98,7 +98,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 });
 
 const isAuthenticatedMiddleware = t.middleware(async ({ next, path, ctx }) => {
-  const user = services.auth.getUser(ctx.db);
+  const user = await services.auth.getUser(ctx.db);
   if (!user) {
     throw new Error("Not authenticated");
   }
@@ -117,3 +117,6 @@ const isAuthenticatedMiddleware = t.middleware(async ({ next, path, ctx }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+export const authenticatedProcedure = t.procedure.use(
+  isAuthenticatedMiddleware
+);

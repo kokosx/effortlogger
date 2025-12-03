@@ -1,7 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { index, pgTableCreator, uuid } from "drizzle-orm/pg-core";
+import { foreignKey, index, pgTableCreator, uuid } from "drizzle-orm/pg-core";
 
 const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7;
 
@@ -31,7 +31,10 @@ export const user = createTable("user", (d) => ({
 
 export const session = createTable("session", (d) => ({
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: d.integer("user_id").notNull(),
+  userId: d
+    .integer("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
   expiresAt: d
     .timestamp("expires_at", { withTimezone: true })
     .default(new Date(Date.now() + SESSION_MAX_AGE_MS))
