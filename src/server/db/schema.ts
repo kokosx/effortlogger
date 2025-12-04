@@ -1,7 +1,7 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { foreignKey, index, pgTableCreator, uuid } from "drizzle-orm/pg-core";
+import { index, pgTableCreator, uuid } from "drizzle-orm/pg-core";
 
 const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7;
 
