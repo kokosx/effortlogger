@@ -97,7 +97,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   return result;
 });
 
-const isAuthenticatedMiddleware = t.middleware(async ({ next, path, ctx }) => {
+const isAuthenticatedMiddleware = t.middleware(async ({ next, ctx }) => {
   const user = await services.auth.getUser(ctx.db);
   if (!user) {
     throw new Error("Not authenticated");

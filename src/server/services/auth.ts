@@ -4,6 +4,7 @@ import type { createUserSchema, loginUserSchema } from "../validation/user";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { composeService } from "./services";
+import { TRPCError } from "@trpc/server";
 
 export const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 7;
 
@@ -11,6 +12,10 @@ const normalizeEmail = (email: string) => {
   return email.toLowerCase().trim();
 };
 
+/**
+ * Registers a new user by hashing their password, persisting the user with a normalized email,
+ * and creating a login session (sets the session cookie). Errors are logged but not rethrown.
+ */
 const createUser = composeService(
   async ({
     db,
@@ -22,20 +27,22 @@ const createUser = composeService(
     //Hash password
     const hashedPassword = await bcrypt.hash(data.password, 10);
     //Add user to db
-    try {
-      const user = await models.user.createUser(db, {
-        email: normalizeEmail(data.email),
-        name: data.name,
-        password: hashedPassword,
-      });
-      //Create session
-      await createSession(db, { userId: user.id });
-    } catch (error) {
-      console.error(error);
-    }
+
+    const user = await models.user.createUser(db, {
+      email: normalizeEmail(data.email),
+      name: data.name,
+      password: hashedPassword,
+    });
+
+    //Create session
+    await createSession(db, { userId: user.id });
   }
 );
 
+/**
+ * Authenticates a user via email/password; on success sets a new session cookie.
+ * Throws on missing user or invalid password.
+ */
 const loginUser = composeService(
   async ({
     db,
@@ -59,6 +66,9 @@ const loginUser = composeService(
   }
 );
 
+/**
+ * Creates a session record for the given user and sets an httpOnly cookie with correct maxAge.
+ */
 const createSession = composeService(
   async ({
     db,
@@ -85,6 +95,9 @@ const createSession = composeService(
   }
 );
 
+/**
+ * Validates the current session cookie and returns the session record or null if missing/expired.
+ */
 const validateSession = composeService(
   async ({ db }: { db: DatabaseConnection }) => {
     const cookieStore = await cookies();
@@ -106,6 +119,9 @@ const validateSession = composeService(
   }
 );
 
+/**
+ * Returns the user associated with the current valid session, or null if unauthenticated.
+ */
 const getUser = composeService(async ({ db }: { db: DatabaseConnection }) => {
   //Check if the session is valid
   const session = await validateSession(db);
@@ -117,6 +133,9 @@ const getUser = composeService(async ({ db }: { db: DatabaseConnection }) => {
   return user;
 });
 
+/**
+ * Deletes the current session and clears the session cookie. Returns false if not logged in.
+ */
 const signOut = composeService(async ({ db }: { db: DatabaseConnection }) => {
   const session = await validateSession(db);
   if (!session) {

@@ -1,5 +1,6 @@
 import type { DatabaseConnection } from "../db";
 import auth from "./auth";
+import { mapPostgresError } from "./error-mapper";
 
 // Typy pomocnicze (musisz zaimportować 'Database' z db/index.ts)
 
@@ -40,7 +41,7 @@ export function composeService<TData, TResult>(
     } catch (error) {
       // Centralny Error Handler (mapowanie błędów DB na TRPCError)
       // throw mapDrizzleError(error);
-      throw error;
+      throw mapPostgresError(error);
     }
   };
 }
